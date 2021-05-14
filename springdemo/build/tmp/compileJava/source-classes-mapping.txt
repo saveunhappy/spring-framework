@@ -1,6 +1,10 @@
-com/imooc/Entrance.java
- com.imooc.Entrance
 com/imooc/service/impl/WelcomeServiceImpl.java
  com.imooc.service.impl.WelcomeServiceImpl
 com/imooc/service/WelcomeService.java
  com.imooc.service.WelcomeService
+com/imooc/Main.java
+ com.imooc.Main
+com/imooc/Entrances.java
+ com.imooc.Entrances
+com/imooc/Entrance.java
+ com.imooc.Entrance
