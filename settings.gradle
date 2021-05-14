@@ -56,3 +56,6 @@ settings.gradle.projectsLoaded {
 		}
 	}
 }
+include 'springdemp'
+include 'springdemo'
+
