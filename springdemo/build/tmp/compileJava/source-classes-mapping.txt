@@ -1,10 +1,22 @@
-com/imooc/service/impl/WelcomeServiceImpl.java
- com.imooc.service.impl.WelcomeServiceImpl
+com/imooc/entity/User.java
+ com.imooc.entity.User
 com/imooc/service/WelcomeService.java
  com.imooc.service.WelcomeService
+com/imooc/service/impl/WelcomeServiceImpl.java
+ com.imooc.service.impl.WelcomeServiceImpl
+com/imooc/controller/WelcomeController.java
+ com.imooc.controller.WelcomeController
+com/imooc/dao/impl/WelcomeDaoImpl.java
+ com.imooc.dao.impl.WelcomeDaoImpl
+com/imooc/dao/WelcomeDao.java
+ com.imooc.dao.WelcomeDao
+com/imooc/entity/factory/UserFactory.java
+ com.imooc.entity.factory.UserFactory
+com/imooc/entity/factory/StaticFactory.java
+ com.imooc.entity.factory.StaticFactory
 com/imooc/Main.java
  com.imooc.Main
-com/imooc/Entrances.java
- com.imooc.Entrances
+com/imooc/entity/factory/UserFactoryBean.java
+ com.imooc.entity.factory.UserFactoryBean
 com/imooc/Entrance.java
  com.imooc.Entrance
