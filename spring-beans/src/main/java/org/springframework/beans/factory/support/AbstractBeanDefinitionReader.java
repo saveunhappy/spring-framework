@@ -84,12 +84,17 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	protected AbstractBeanDefinitionReader(BeanDefinitionRegistry registry) {
 		Assert.notNull(registry, "BeanDefinitionRegistry must not be null");
 		this.registry = registry;
-
+		//如果BeanDefinitionRegistry是ResourceLoader的实例，
+		// 就把BeanDefinitionRegistry赋值给ResourceLoader
 		// Determine ResourceLoader to use.
 		if (this.registry instanceof ResourceLoader) {
 			this.resourceLoader = (ResourceLoader) this.registry;
 		}
 		else {
+			//否则，就是默认的DefaultResourceLoader，
+			// 有趣的是，DefaultListableBeanFactory 实现了BeanDefinitionRegistry
+			//然后，高级容器就是ApplicationContext继承了ResourceLoader，所以
+			//DefaultListableBeanFactory也可以当成ResourceLoader
 			this.resourceLoader = new PathMatchingResourcePatternResolver();
 		}
 
@@ -211,17 +216,24 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 	 * @see #loadBeanDefinitions(org.springframework.core.io.Resource[])
 	 */
 	public int loadBeanDefinitions(String location, @Nullable Set<Resource> actualResources) throws BeanDefinitionStoreException {
+		//location就是盘符
+		//获取资源加载器，主要的功能就是根据路径和类加载器获取Resource对象
 		ResourceLoader resourceLoader = getResourceLoader();
+		//资源加载器不能是空的，否则抛出异常
 		if (resourceLoader == null) {
 			throw new BeanDefinitionStoreException(
 					"Cannot load bean definitions from location [" + location + "]: no ResourceLoader available");
 		}
-
+		//看看是不是ResourcePatternResolver的实现类，用于加载多个文件的ant风格的文件资源
 		if (resourceLoader instanceof ResourcePatternResolver) {
 			// Resource pattern matching available.
+			//根据这个资源加载器去加载location下面的文件，
 			try {
+				//加载到好多，location是位置，找到那个位置的文件，变成Resource对象
 				Resource[] resources = ((ResourcePatternResolver) resourceLoader).getResources(location);
+				//返回加载的文件数量
 				int count = loadBeanDefinitions(resources);
+				//不是空，就加到一个Collection的集合中
 				if (actualResources != null) {
 					Collections.addAll(actualResources, resources);
 				}
@@ -236,6 +248,7 @@ public abstract class AbstractBeanDefinitionReader implements BeanDefinitionRead
 			}
 		}
 		else {
+			//没有ant风格，就是不能加载Ant风格，那就使用单个的吧，
 			// Can only load single resources by absolute URL.
 			Resource resource = resourceLoader.getResource(location);
 			int count = loadBeanDefinitions(resource);

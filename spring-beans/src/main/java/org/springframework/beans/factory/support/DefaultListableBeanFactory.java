@@ -1038,7 +1038,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			}
 			this.frozenBeanDefinitionNames = null;
 		}
-
+		//检查是否有同名的BeanDefinition已经在IOC中注册过，这个existingDefinition就是get得到的
+		//如果有了，那就说明不是单例的了，要进行reset的操作，
 		if (existingDefinition != null || containsSingleton(beanName)) {
 			resetBeanDefinition(beanName);
 		}
@@ -1103,6 +1104,8 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
 		// Reset all bean definitions that have the given bean as parent (recursively).
 		for (String bdName : this.beanDefinitionNames) {
+			//找到所有和这个重置了的bean名字不一样的，因为他们的parent可能是这个bean，
+			//然后可能有好多个bean,关系很乱，所以需要层层递归，你有关系，你的祖先就都要去掉关系
 			if (!beanName.equals(bdName)) {
 				BeanDefinition bd = this.beanDefinitionMap.get(bdName);
 				// Ensure bd is non-null due to potential concurrent modification of beanDefinitionMap.

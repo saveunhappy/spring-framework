@@ -322,19 +322,22 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 		if (logger.isTraceEnabled()) {
 			logger.trace("Loading XML bean definitions from " + encodedResource);
 		}
-
+		//从本地线程中获取当前的正在加载的资源
 		Set<EncodedResource> currentResources = this.resourcesCurrentlyBeingLoaded.get();
 
 		if (!currentResources.add(encodedResource)) {
 			throw new BeanDefinitionStoreException(
 					"Detected cyclic loading of " + encodedResource + " - check your import definitions!");
 		}
-
+			//获取文件的输入流
 		try (InputStream inputStream = encodedResource.getResource().getInputStream()) {
+			//封装成InputSource，其中指定了输入流和编码格式
 			InputSource inputSource = new InputSource(inputStream);
+			//如果存在编码，那么将其添加进入InputSource中
 			if (encodedResource.getEncoding() != null) {
 				inputSource.setEncoding(encodedResource.getEncoding());
 			}
+			//调用同类的方法继续解析
 			return doLoadBeanDefinitions(inputSource, encodedResource.getResource());
 		}
 		catch (IOException ex) {
@@ -506,9 +509,13 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 	 * @see BeanDefinitionDocumentReader#registerBeanDefinitions
 	 */
 	public int registerBeanDefinitions(Document doc, Resource resource) throws BeanDefinitionStoreException {
+		//获取BeanDefinitionDocumentReader对象
 		BeanDefinitionDocumentReader documentReader = createBeanDefinitionDocumentReader();
+		//获取注册的数量，
 		int countBefore = getRegistry().getBeanDefinitionCount();
+		//加载并注册
 		documentReader.registerBeanDefinitions(doc, createReaderContext(resource));
+		//上边先获取了注册的数量，然后注册了一下，这边再获取一下，减去之前那个数，就是这次加载的BeanDefinition的数量了
 		return getRegistry().getBeanDefinitionCount() - countBefore;
 	}
 
