@@ -165,6 +165,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	@Override
 	@Nullable
 	public Object getSingleton(String beanName) {
+		//第二个参数，允许立即加载
 		return getSingleton(beanName, true);
 	}
 
@@ -179,18 +180,32 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	@Nullable
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		// Quick check for existing instance without full singleton lock
+		//尝试从一级缓存里面获取完备的Bean,这就是那个ConcurrentHashMap，最终放着BeanDefinition的那个
 		Object singletonObject = this.singletonObjects.get(beanName);
+		//如果完备的单例还没有被创建出来，创建中的Bean的名字会被保存在singletonsCurrentlyInCreation中
+		//因此看看是否正在创建，刚开始，肯定是没有的，而且也没有判断是singleton还是prototype的
+		// 直接返回一个空的对象
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
+			//从二级缓存中拿，这里没有锁，也是ConcurrentHashMap
+			//这个缓存中还没有进行属性添加操作的Bean实例缓存中获取
 			singletonObject = this.earlySingletonObjects.get(beanName);
 			if (singletonObject == null && allowEarlyReference) {
 				synchronized (this.singletonObjects) {
 					// Consistent creation of early reference within full singleton lock
+					//再从一级缓存中拿
 					singletonObject = this.singletonObjects.get(beanName);
 					if (singletonObject == null) {
+						//再从二级缓存中拿
 						singletonObject = this.earlySingletonObjects.get(beanName);
 						if (singletonObject == null) {
+							//三级缓存，上锁了，那就没必要用ConcurrentHashMap了，用HashMap就行
+							//就是个FactoryBean，那为什么不用FactoryBean？FactoryBean是给用户使用的
+							//ObjectFactory是框架自己使用的，
 							ObjectFactory<?> singletonFactory = this.singletonFactories.get(beanName);
 							if (singletonFactory != null) {
+								//三级缓存中再没有，那就用工厂Bean去创建，
+								//然后放到二级缓存中，就是还没有属性赋值的那个二级缓存
+								//再把对象从三级缓存中移除，保证单例
 								singletonObject = singletonFactory.getObject();
 								this.earlySingletonObjects.put(beanName, singletonObject);
 								this.singletonFactories.remove(beanName);
@@ -412,7 +427,12 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 */
 	public void registerDependentBean(String beanName, String dependentBeanName) {
 		String canonicalName = canonicalName(beanName);
-
+		/*
+		computeIfAbsent:若key对应的value为空，会将第二个参数的返回值存入并且返回，
+		dependentBeanMap当中存放着当前Bean被引用的Bean的集合，
+		比如当前需要实例化的是Bean的名字，userInfo,userInfo中有个Human类型的属性human
+		那么human被userInfo引用的关系human=[userInfo]
+		 */
 		synchronized (this.dependentBeanMap) {
 			Set<String> dependentBeans =
 					this.dependentBeanMap.computeIfAbsent(canonicalName, k -> new LinkedHashSet<>(8));
@@ -420,7 +440,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				return;
 			}
 		}
-
+		//userInfo=[human]
 		synchronized (this.dependenciesForBeanMap) {
 			Set<String> dependenciesForBean =
 					this.dependenciesForBeanMap.computeIfAbsent(dependentBeanName, k -> new LinkedHashSet<>(8));

@@ -66,8 +66,10 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 */
 	public AnnotationConfigApplicationContext() {
 		StartupStep createAnnotatedBeanDefReader = this.getApplicationStartup().start("spring.context.annotated-bean-reader.create");
+		//读取Resource资源的
 		this.reader = new AnnotatedBeanDefinitionReader(this);
 		createAnnotatedBeanDefReader.end();
+		// 加载资源的 就相当于                BeanDefinitionRegistry
 		this.scanner = new ClassPathBeanDefinitionScanner(this);
 	}
 
@@ -88,8 +90,14 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	 * {@link Configuration @Configuration} classes
 	 */
 	public AnnotationConfigApplicationContext(Class<?>... componentClasses) {
+		//调用默认无参构造器，主要初始化AnnotatedBeanDefinitionReader，加载Resource的
+		//还有路径扫描器ClassPathBeanDefinitionScanner  这个充当了Register
 		this();
+		//把传入的Class进行注册，Class既可以有@Configuration注解，也可以没有Configuration注解，
+		//如何注册委托给了org.springframework.context.annotation.AnnotatedBeanDefinitionReader.register方法
+		//包装传入的Class 生成BeanDefinition,注册到BeanDefinitionRegister
 		register(componentClasses);
+		//老一套，refresh
 		refresh();
 	}
 
@@ -152,6 +160,23 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 	//---------------------------------------------------------------------
 
 	/**
+	 * Perform a scan within the specified base packages.
+	 * <p>Note that {@link #refresh()} must be called in order for the context
+	 * to fully process the new classes.
+	 * @param basePackages the packages to scan for component classes
+	 * @see #register(Class...)
+	 * @see #refresh()
+	 */
+	@Override
+	public void scan(String... basePackages) {
+		Assert.notEmpty(basePackages, "At least one base package must be specified");
+		StartupStep scanPackages = this.getApplicationStartup().start("spring.context.base-packages.scan")
+				.tag("packages", () -> Arrays.toString(basePackages));
+		this.scanner.scan(basePackages);
+		scanPackages.end();
+	}
+
+	/**
 	 * Register one or more component classes to be processed.
 	 * <p>Note that {@link #refresh()} must be called in order for the context
 	 * to fully process the new classes.
@@ -167,23 +192,6 @@ public class AnnotationConfigApplicationContext extends GenericApplicationContex
 				.tag("classes", () -> Arrays.toString(componentClasses));
 		this.reader.register(componentClasses);
 		registerComponentClass.end();
-	}
-
-	/**
-	 * Perform a scan within the specified base packages.
-	 * <p>Note that {@link #refresh()} must be called in order for the context
-	 * to fully process the new classes.
-	 * @param basePackages the packages to scan for component classes
-	 * @see #register(Class...)
-	 * @see #refresh()
-	 */
-	@Override
-	public void scan(String... basePackages) {
-		Assert.notEmpty(basePackages, "At least one base package must be specified");
-		StartupStep scanPackages = this.getApplicationStartup().start("spring.context.base-packages.scan")
-				.tag("packages", () -> Arrays.toString(basePackages));
-		this.scanner.scan(basePackages);
-		scanPackages.end();
 	}
 
 

@@ -39,6 +39,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.support.ResourceEditorRegistrar;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -554,6 +555,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 			// Tell the subclass to refresh the internal bean factory.
 			ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
 			//为BeanFactory配置容器特性，例如事件处理器，类加载器等
+			//注册一些容器中需要的系统Bean，例如classLoader,beanFactoryPostProcessor
 			// Prepare the bean factory for use in this context.
 			prepareBeanFactory(beanFactory);
 
@@ -565,8 +567,14 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
 				// Invoke factory processors registered as beans in the context.
 				//激活在容器中注册为bean的工厂处理器
+				/*
+				BeanDefinitionRegisterPostProcessor
+				BeanFactoryPostProcessor
+				 */
 				invokeBeanFactoryPostProcessors(beanFactory);
-
+				/*
+				BeanPostProcessor
+				 */
 				// Register bean processors that intercept bean creation.
 				registerBeanPostProcessors(beanFactory);
 				beanPostProcess.end();
@@ -575,15 +583,20 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 				initMessageSource();
 
 				// Initialize event multicaster for this context.
+				//
 				initApplicationEventMulticaster();
-
+				//钩子方法
 				// Initialize other special beans in specific context subclasses.
 				onRefresh();
 
 				// Check for listener beans and register them.
+				//注册监听器，ApplicationEventMulticaster是事件源，发布事件的，listener要注册到
+				//ApplicationEventMulticaster中，然后，ApplicationEventMulticaster还能发布
 				registerListeners();
 
 				// Instantiate all remaining (non-lazy-init) singletons.
+				//实例化不是懒加载的Bean
+				//用的这个，DefaultListableBeanFactory
 				finishBeanFactoryInitialization(beanFactory);
 
 				// Last step: publish corresponding event.

@@ -4,8 +4,8 @@ com/imooc/service/WelcomeService.java
  com.imooc.service.WelcomeService
 com/imooc/service/impl/WelcomeServiceImpl.java
  com.imooc.service.impl.WelcomeServiceImpl
-com/imooc/controller/WelcomeController.java
- com.imooc.controller.WelcomeController
+com/imooc/postprocessor/CustomizeBeanPostProcessor.java
+ com.imooc.postprocessor.CustomizeBeanPostProcessor
 com/imooc/dao/impl/WelcomeDaoImpl.java
  com.imooc.dao.impl.WelcomeDaoImpl
 com/imooc/dao/WelcomeDao.java
@@ -16,9 +16,13 @@ com/imooc/entity/factory/StaticFactory.java
  com.imooc.entity.factory.StaticFactory
 com/imooc/entity/factory/UserFactoryBean.java
  com.imooc.entity.factory.UserFactoryBean
-com/imooc/Entrance.java
- com.imooc.Entrance
 com/imooc/demo/resource/ResourceDemo.java
  com.imooc.demo.resource.ResourceDemo
 com/imooc/Main.java
  com.imooc.Main
+com/imooc/controller/WelcomeController.java
+ com.imooc.controller.WelcomeController
+com/imooc/Entrance.java
+ com.imooc.Entrance
+com/imooc/postprocessor/CustomizedBeanDefinitionRegisterPostProcessor.java
+ com.imooc.postprocessor.CustomizedBeanDefinitionRegisterPostProcessor

@@ -211,6 +211,9 @@ public class SimpleAliasRegistry implements AliasRegistry {
 		// Handle aliasing...
 		String resolvedName;
 		do {
+			//根据别名获取真正的beanName,传入beanName就啥都获取不到，这里看名字也知道
+			//aliasMap,为啥要递归找，因为别名还有可能有别名，就跟二叉树添加新节点，看看
+			//左边是不是空，右边是不是空，不是空了，才能去添加。
 			resolvedName = this.aliasMap.get(canonicalName);
 			if (resolvedName != null) {
 				canonicalName = resolvedName;

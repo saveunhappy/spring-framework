@@ -12,7 +12,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 @Configuration
 @ComponentScan("com.imooc")
 public class Entrance {
-	public static void main(String[] args) {
+	public static void main1(String[] args) {
 		System.out.println("hello world");
 		String xmlPath = "D:\\dev\\spring-framework\\springdemo\\src\\main\\resources\\spring\\spring-config.xml";
 		ApplicationContext applicationContext = new FileSystemXmlApplicationContext(xmlPath);
@@ -44,7 +44,7 @@ public class Entrance {
 
 	}
 
-	public static void main1(String[] args) {
+	public static void main(String[] args) {
 		ApplicationContext applicationContext = new AnnotationConfigApplicationContext(Entrance.class);
 		String[] beanDefinitionNames = applicationContext.getBeanDefinitionNames();
 		for (String beanDefinitionName : beanDefinitionNames) {
@@ -54,5 +54,7 @@ public class Entrance {
 		welcomeService.sayHello("强大的spring框架");
 		WelcomeController welcomeController = (WelcomeController) applicationContext.getBean("welcomeController");
 		welcomeController.handleRequest();
+		User user5 = (User) applicationContext.getBean("user5");
+		System.out.println("CustomizedBeanDefinitionRegisterPostProcessor创建的对象" + user5);
 	}
 }
